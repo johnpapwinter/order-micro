@@ -5,6 +5,7 @@ import com.example.orders.enums.OrderStatus;
 import com.example.orders.exception.EntityNotFoundException;
 import com.example.orders.exception.ErrorMessages;
 import com.example.orders.model.Order;
+import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
 import com.example.orders.utils.mappers.OrderMapper;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -54,6 +56,39 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(dto.getId()).orElseThrow(
                 () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
         );
+        // update fields
+        order.setCustomerName(dto.getCustomerName());
+        order.setOrderStatus(dto.getOrderStatus());
+
+        // find out if any lines where removed and delete them
+        List<OrderLine> linesToRemove = order.getOrderLines().stream()
+                .filter(existingLine -> dto.getOrderLines().stream()
+                        .noneMatch(dtoLine -> Objects.equals(dtoLine.getId(), existingLine.getId())))
+                .toList();
+
+        order.getOrderLines().removeAll(linesToRemove);
+
+        // add lines that where not there
+        dto.getOrderLines().forEach(lineDto -> {
+            if (lineDto.getId() == null) {
+                OrderLine newLine = new OrderLine();
+                newLine.setOrder(order);
+                newLine.setProductId(lineDto.getProductId());
+                newLine.setQuantity(lineDto.getQuantity());
+                newLine.setPrice(lineDto.getPrice());
+                order.getOrderLines().add(newLine);
+            } else {
+                order.getOrderLines().stream()
+                        .filter(line -> Objects.equals(line.getId(), lineDto.getId()))
+                        .findFirst()
+                        .ifPresent(line -> {
+                            line.setProductId(lineDto.getProductId());
+                            line.setQuantity(lineDto.getQuantity());
+                            line.setPrice(lineDto.getPrice());
+                        });
+            }
+        });
+
 
         return null;
     }
