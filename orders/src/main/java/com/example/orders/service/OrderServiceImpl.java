@@ -2,8 +2,11 @@ package com.example.orders.service;
 
 import com.example.orders.dto.OrderDTO;
 import com.example.orders.enums.OrderStatus;
+import com.example.orders.exception.EntityNotFoundException;
+import com.example.orders.exception.ErrorMessages;
 import com.example.orders.model.Order;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.utils.mappers.OrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,20 +18,20 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderLineService orderLineService;
+    private final OrderMapper orderMapper;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderLineService orderLineService) {
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            OrderLineService orderLineService,
+                            OrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.orderLineService = orderLineService;
+        this.orderMapper = orderMapper;
     }
 
     @Override
     @Transactional
     public Long createOrder(OrderDTO dto) {
-        Order order = new Order();
-        order.setOrderId(dto.getOrderId());
-        order.setCustomerName(dto.getCustomerName());
-        order.setOrderStatus(OrderStatus.UNPROCESSED);
-        order.setOrderDate(LocalDate.now());
+        Order order = orderMapper.toOrder(dto);
         dto.getOrderLines().forEach(orderLineDto -> {
             orderLineService.createOrderLine(orderLineDto, order);
         });
@@ -40,21 +43,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderDTO getOrder(Long id) {
-        return orderRepository.findById(id).map(order -> {
-            OrderDTO dto = new OrderDTO();
-            dto.setId(order.getId());
-            dto.setOrderId(order.getOrderId());
-            dto.setCustomerName(order.getCustomerName());
-            dto.setOrderStatus(order.getOrderStatus());
-            dto.setOrderDate(order.getOrderDate());
-            return dto;
-        }).orElse(null);
+        return orderRepository.findById(id).map(orderMapper::toOrderDTO).orElseThrow(
+                () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
+        );
     }
 
     @Override
     @Transactional
     public OrderDTO updateOrder(OrderDTO dto) {
-        Order order = orderRepository.findById(dto.getId()).orElse(null);
+        Order order = orderRepository.findById(dto.getId()).orElseThrow(
+                () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
+        );
 
         return null;
     }
