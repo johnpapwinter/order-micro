@@ -16,6 +16,7 @@ public class ErrorMessages {
     public static final String QUANTITY_CANNOT_BE_NEGATIVE = "QUANTITY_CANNOT_BE_NEGATIVE";
     public static final String PRICE_CANNOT_BE_NEGATIVE = "PRICE_CANNOT_BE_NEGATIVE";
 
+    public static final String APP_USER_NOT_FOUND = "APP_USER_NOT_FOUND";
 
     public static final String CONTACT_YOUR_ADMINISTRATOR = "CONTACT_YOUR_ADMINISTRATOR";
 

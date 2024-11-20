@@ -22,6 +22,11 @@ public class OrderLineServiceImpl implements OrderLineService {
         this.orderLineMapper = orderLineMapper;
     }
 
+    /**
+     * Takes an OrderLineDTO and an Order and will create a new OrderLine entity and associate it with the Order
+     * @param dto The OrderLineDTO of the entity to be created
+     * @param order The Order entity that the new OrderLine will be attached to
+     */
     @Override
     @Transactional
     public void createOrderLine(OrderLineDTO dto, Order order) {
@@ -30,6 +35,11 @@ public class OrderLineServiceImpl implements OrderLineService {
         order.getOrderLines().add(orderLine);
     }
 
+    /**
+     * Takes an OrderLineDTO object and an OrderLine entity and will update the entity based on the DTO
+     * @param dto The OrderLineDTO containing the updated fields
+     * @param orderLine The OrderLine entity that will be updated
+     */
     @Override
     @Transactional
     public void updateOrderLine(OrderLineDTO dto, OrderLine orderLine) {
@@ -38,8 +48,13 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setPrice(dto.getPrice());
     }
 
+    /**
+     * Will take a List of OrderLine entities and will delete them from the database
+     * @param orderLines The List<OrderLine> with the entities to be deleted
+     */
     @Override
     public void deleteOrderLines(List<OrderLine> orderLines) {
+
         orderLineRepository.deleteAll(orderLines);
     }
 

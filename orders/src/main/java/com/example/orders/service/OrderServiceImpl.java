@@ -30,6 +30,11 @@ public class OrderServiceImpl implements OrderService {
         this.orderMapper = orderMapper;
     }
 
+    /**
+     * Adds a new Order and its associated OrderLines based on the provided OrderDTO
+     * @param dto The OrderDTO object containing the Order details and associated items
+     * @return The ID of the newly created order.
+     */
     @Override
     @Transactional
     public Long createOrder(OrderDTO dto) {
@@ -42,6 +47,11 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
+    /**
+     * Takes an id and returns a DTO of the Order found
+     * @param id The ID of the Order to be found
+     * @return An OrderDTO object
+     */
     @Override
     @Transactional(readOnly = true)
     public OrderDTO getOrder(Long id) {
@@ -50,6 +60,12 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    /**
+     * Takes an id and a DTO object and updates an Order entity and its associated OrderLines
+     * @param id The ID of the Order to be updated
+     * @param dto The OrderDTO object containing the updated values and the associated OrderLineDTOs
+     * @return An OrderDTO with the updated Order
+     */
     @Override
     @Transactional
     public OrderDTO updateOrder(Long id, OrderDTO dto) {
@@ -86,12 +102,19 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toOrderDTO(order);
     }
 
+    /**
+     * Will remove an Order based on the ID parameter
+     * @param id The ID of the Order to be deleted
+     */
     @Override
     @Transactional
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
     }
 
+    /**
+     * Will update all Orders to "PROCESSED" if they are "UNPROCESSED"
+     */
     @Override
     @Transactional
     public void processOrders() {
