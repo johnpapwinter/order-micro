@@ -7,11 +7,11 @@ import com.example.orders.exception.ErrorMessages;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.utils.mappers.OrderLineMapper;
 import com.example.orders.utils.mappers.OrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,13 +21,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderLineService orderLineService;
     private final OrderMapper orderMapper;
+    private final OrderLineMapper lineMapper;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderLineService orderLineService,
-                            OrderMapper orderMapper) {
+                            OrderMapper orderMapper,
+                            OrderLineMapper lineMapper) {
         this.orderRepository = orderRepository;
         this.orderLineService = orderLineService;
         this.orderMapper = orderMapper;
+        this.lineMapper = lineMapper;
     }
 
     @Override
@@ -57,7 +60,6 @@ public class OrderServiceImpl implements OrderService {
                 () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
         );
         // update fields
-        order.setCustomerName(dto.getCustomerName());
         order.setOrderStatus(dto.getOrderStatus());
 
         // find out if any lines where removed and delete them
@@ -67,22 +69,19 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         order.getOrderLines().removeAll(linesToRemove);
+        orderLineService.deleteOrderLines(linesToRemove);
 
         // add lines that where not there
         dto.getOrderLines().forEach(lineDto -> {
             if (lineDto.getId() == null) {
-                OrderLine newLine = new OrderLine();
+                OrderLine newLine = lineMapper.toOrderLine(lineDto);
                 newLine.setOrder(order);
-                newLine.setProductId(lineDto.getProductId());
-                newLine.setQuantity(lineDto.getQuantity());
-                newLine.setPrice(lineDto.getPrice());
                 order.getOrderLines().add(newLine);
             } else {
                 order.getOrderLines().stream()
                         .filter(line -> Objects.equals(line.getId(), lineDto.getId()))
                         .findFirst()
                         .ifPresent(line -> {
-                            line.setProductId(lineDto.getProductId());
                             line.setQuantity(lineDto.getQuantity());
                             line.setPrice(lineDto.getPrice());
                         });
@@ -90,7 +89,7 @@ public class OrderServiceImpl implements OrderService {
         });
 
 
-        return null;
+        return orderMapper.toOrderDTO(order);
     }
 
     @Override

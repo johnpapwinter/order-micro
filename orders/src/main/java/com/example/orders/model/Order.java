@@ -4,6 +4,8 @@ import com.example.orders.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -13,9 +15,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "orders")
+@Audited
 @Getter
 @Setter
-public class Order implements Serializable {
+public class Order extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +26,11 @@ public class Order implements Serializable {
     private Long id;
 
     @Column(name = "order_id", nullable = false, unique = true)
+    @NotAudited
     private String orderId;
 
     @Column(name = "customer_name", nullable = false)
+    @NotAudited
     private String customerName;
 
     @Enumerated(EnumType.STRING)
@@ -33,6 +38,7 @@ public class Order implements Serializable {
     private OrderStatus orderStatus;
 
     @Column(name = "order_date", nullable = false)
+    @NotAudited
     private LocalDate orderDate;
 
     @OneToMany(mappedBy = "order")
@@ -40,6 +46,7 @@ public class Order implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @NotAudited
     private AppUser appUser;
 
 

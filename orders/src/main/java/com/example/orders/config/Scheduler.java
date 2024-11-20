@@ -19,6 +19,7 @@ public class Scheduler {
 
     @Scheduled(cron = "${task.schedule.cron}")
     public void processUnprocessedOrders() {
+        System.out.println("Processing unprocessed orders");
         orderService.processOrders();
     }
 

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="johnpapwinter">
+        <createTable tableName="REVINFO">
+            <column name="REV" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="REVTSTMP" type="bigint"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="johnpapwinter">
+        <createTable tableName="orders_aud">
+            <column name="id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVTYPE" type="tinyint"/>
+            <column name="order_status" type="VARCHAR(50)"/>
+            <column name="last_modification_date" type="timestamp"/>
+        </createTable>
+
+        <addPrimaryKey tableName="orders_aud" columnNames="id,REV"/>
+
+        <addForeignKeyConstraint baseTableName="orders_aud"
+                                 baseColumnNames="REV"
+                                 constraintName="fk_orders_revinfo"
+                                 referencedTableName="REVINFO"
+                                 referencedColumnNames="REV"/>
+    </changeSet>
+    <changeSet id="3" author="johnpapwinter">
+        <createTable tableName="order_lines_aud">
+            <column name="id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVTYPE" type="tinyint"/>
+            <column name="quantity" type="int"/>
+            <column name="price" type="double"/>
+            <column name="last_modification_date" type="timestamp"/>
+            <column name="order_id" type="bigint"/>
+        </createTable>
+
+        <addPrimaryKey tableName="order_lines_aud" columnNames="id,REV"/>
+        
+        <addForeignKeyConstraint baseTableName="order_lines_aud"
+                                 baseColumnNames="REV"
+                                 constraintName="fk_order_lines_aud_revinfo"
+                                 referencedTableName="REVINFO"
+                                 referencedColumnNames="REV"/>
+
+    </changeSet>
+    <changeSet id="4" author="johnpapwinter">
+        <createSequence sequenceName="revinfo_seq"
+                        incrementBy="1"
+                        startValue="1"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -70,5 +70,24 @@
                                  constraintName="FK_ORDER_LINES_ON_ORDER" referencedColumnNames="id"
                                  referencedTableName="orders"/>
     </changeSet>
+    <changeSet id="8" author="johnpapwinter">
+        <addColumn tableName="app_users">
+            <column name="role" type="varchar(50)" defaultValue="ADMIN">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="9" author="johnpapwinter">
+        <addColumn tableName="orders">
+            <column name="created_date" type="timestamp" />
+            <column name="last_modification_date" type="timestamp"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="10" author="johnpapwinter">
+        <addColumn tableName="order_lines">
+            <column name="created_date" type="timestamp" />
+            <column name="last_modification_date" type="timestamp"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

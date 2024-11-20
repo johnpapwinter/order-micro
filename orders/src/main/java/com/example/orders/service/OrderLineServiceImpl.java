@@ -7,6 +7,8 @@ import com.example.orders.repository.OrderLineRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class OrderLineServiceImpl implements OrderLineService {
 
@@ -33,4 +35,10 @@ public class OrderLineServiceImpl implements OrderLineService {
     public void deleteOrderLine(Long id) {
 
     }
+
+    @Override
+    public void deleteOrderLines(List<OrderLine> orderLines) {
+
+    }
+
 }

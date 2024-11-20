@@ -1,5 +1,6 @@
 package com.example.orders.model;
 
+import com.example.orders.enums.AppUserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,10 @@ public class AppUser implements Serializable {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private AppUserRole role;
 
     @OneToMany(mappedBy = "appUser")
     private List<Order> orders = new ArrayList<>();

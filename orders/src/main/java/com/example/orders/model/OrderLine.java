@@ -4,15 +4,18 @@ package com.example.orders.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "order_lines")
+@Audited
 @Getter
 @Setter
-public class OrderLine implements Serializable {
+public class OrderLine extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +23,7 @@ public class OrderLine implements Serializable {
     private Long id;
 
     @Column(name = "product_id", nullable = false)
+    @NotAudited
     private String productId;
 
     @Column(name = "quantity", nullable = false)
