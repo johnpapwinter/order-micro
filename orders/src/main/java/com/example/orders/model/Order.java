@@ -44,11 +44,6 @@ public class Order extends Auditable implements Serializable {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @NotAudited
-    private AppUser appUser;
-
 
     @Override
     public boolean equals(Object o) {

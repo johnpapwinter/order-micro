@@ -31,9 +31,6 @@ public class AppUser implements Serializable {
     @Column(name = "role", nullable = false)
     private AppUserRole role;
 
-    @OneToMany(mappedBy = "appUser")
-    private List<Order> orders = new ArrayList<>();
-
 
     @Override
     public boolean equals(Object o) {
