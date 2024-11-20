@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
+// THIS IS PRACTICALLY TO DE-CLUTTER THE CONTROLLER, OTHERWISE IT WOULDN'T BE READABLE
+// WITH ALL THE DOCUMENTATION ANNOTATIONS
 @Tag(name = "Auth", description = "The security API")
 public interface AuthApi {
 

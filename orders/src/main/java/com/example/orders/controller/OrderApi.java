@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+// THIS IS PRACTICALLY TO DE-CLUTTER THE CONTROLLER, OTHERWISE IT WOULDN'T BE READABLE
+// WITH ALL THE DOCUMENTATION ANNOTATIONS
 @Tag(name = "Orders", description = "The Orders API")
 public interface OrderApi {
 
@@ -19,7 +21,7 @@ public interface OrderApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "400", description = "data violation")
+            @ApiResponse(responseCode = "400", description = "invalid input")
     })
     ResponseEntity<Long> createOrder(@RequestBody @Valid OrderDTO dto);
 
@@ -41,7 +43,7 @@ public interface OrderApi {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "update successful"),
-            @ApiResponse(responseCode = "400", description = "data violation"),
+            @ApiResponse(responseCode = "400", description = "invalid input"),
             @ApiResponse(responseCode = "404", description = "not found")
     })
     ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO dto);
