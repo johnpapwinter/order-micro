@@ -1,6 +1,8 @@
 package com.example.orders.service;
 
 import com.example.orders.dto.OrderDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
 
@@ -13,5 +15,7 @@ public interface OrderService {
     void deleteOrder(Long id);
 
     void processOrders();
+
+    Page<OrderDTO> getOrders(Pageable pageable);
 
 }

@@ -30,6 +30,7 @@
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <app.java-jwt.version>4.2.1</app.java-jwt.version>
+        <app.springdoc-openapi.version>2.0.2</app.springdoc-openapi.version>
     </properties>
     <dependencies>
         <dependency>
@@ -75,6 +76,11 @@
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>${app.java-jwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${app.springdoc-openapi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

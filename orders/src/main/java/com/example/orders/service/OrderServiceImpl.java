@@ -9,6 +9,8 @@ import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
 import com.example.orders.utils.mappers.OrderMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +112,18 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    /**
+     * Takes a Spring pageable object and returns a Page of OrderDTOs
+     * @param pageable The Spring Pageable object
+     * @return a Page of OrderDTO objects
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> getOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+                .map(orderMapper::toOrderDTO);
     }
 
     /**
