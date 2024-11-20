@@ -41,7 +41,7 @@ public class Order extends Auditable implements Serializable {
     @NotAudited
     private LocalDate orderDate;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines = new ArrayList<>();
 
     @ManyToOne

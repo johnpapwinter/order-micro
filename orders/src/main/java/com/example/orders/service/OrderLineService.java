@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface OrderLineService {
 
-    Long createOrderLine(OrderLineDTO dto, Order order);
+    void createOrderLine(OrderLineDTO dto, Order order);
 
-    OrderLine updateOrderLine(OrderLineDTO dto, Order order);
-
-    void deleteOrderLine(Long id);
+    void updateOrderLine(OrderLineDTO dto, OrderLine orderLine);
 
     void deleteOrderLines(List<OrderLine> orderLines);
 

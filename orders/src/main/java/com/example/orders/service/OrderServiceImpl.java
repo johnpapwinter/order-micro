@@ -2,12 +2,12 @@ package com.example.orders.service;
 
 import com.example.orders.dto.OrderDTO;
 import com.example.orders.enums.OrderStatus;
+import com.example.orders.exception.DataMismatchException;
 import com.example.orders.exception.EntityNotFoundException;
 import com.example.orders.exception.ErrorMessages;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
-import com.example.orders.utils.mappers.OrderLineMapper;
 import com.example.orders.utils.mappers.OrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +21,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderLineService orderLineService;
     private final OrderMapper orderMapper;
-    private final OrderLineMapper lineMapper;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderLineService orderLineService,
-                            OrderMapper orderMapper,
-                            OrderLineMapper lineMapper) {
+                            OrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.orderLineService = orderLineService;
         this.orderMapper = orderMapper;
-        this.lineMapper = lineMapper;
     }
 
     @Override
@@ -55,11 +52,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderDTO updateOrder(OrderDTO dto) {
+    public OrderDTO updateOrder(Long id, OrderDTO dto) {
+        doIdsMatch(id, dto.getId());
+
+        // I CONSIDER THAT ONLY THE STATUS AND THE ITEMS ARE UPDATABLE IN THE ORDER
         Order order = orderRepository.findById(dto.getId()).orElseThrow(
                 () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
         );
-        // update fields
         order.setOrderStatus(dto.getOrderStatus());
 
         // find out if any lines where removed and delete them
@@ -74,17 +73,12 @@ public class OrderServiceImpl implements OrderService {
         // add lines that where not there
         dto.getOrderLines().forEach(lineDto -> {
             if (lineDto.getId() == null) {
-                OrderLine newLine = lineMapper.toOrderLine(lineDto);
-                newLine.setOrder(order);
-                order.getOrderLines().add(newLine);
+                orderLineService.createOrderLine(lineDto, order);
             } else {
                 order.getOrderLines().stream()
                         .filter(line -> Objects.equals(line.getId(), lineDto.getId()))
                         .findFirst()
-                        .ifPresent(line -> {
-                            line.setQuantity(lineDto.getQuantity());
-                            line.setPrice(lineDto.getPrice());
-                        });
+                        .ifPresent(line -> orderLineService.updateOrderLine(lineDto, line));
             }
         });
 
@@ -105,6 +99,13 @@ public class OrderServiceImpl implements OrderService {
         orders.forEach(order -> {
             order.setOrderStatus(OrderStatus.PROCESSED);
         });
+    }
+
+
+    private void doIdsMatch(Long pathId, Long dtoId) {
+        if (!pathId.equals(dtoId)) {
+            throw new DataMismatchException(ErrorMessages.DATA_MISMATCH_ERROR);
+        }
     }
 
 }

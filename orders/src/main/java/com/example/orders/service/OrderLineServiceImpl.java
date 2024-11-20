@@ -4,6 +4,7 @@ import com.example.orders.dto.OrderLineDTO;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderLineRepository;
+import com.example.orders.utils.mappers.OrderLineMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,32 +14,33 @@ import java.util.List;
 public class OrderLineServiceImpl implements OrderLineService {
 
     private final OrderLineRepository orderLineRepository;
+    private final OrderLineMapper orderLineMapper;
 
-    public OrderLineServiceImpl(OrderLineRepository orderLineRepository) {
+    public OrderLineServiceImpl(OrderLineRepository orderLineRepository,
+                                OrderLineMapper orderLineMapper) {
         this.orderLineRepository = orderLineRepository;
+        this.orderLineMapper = orderLineMapper;
     }
 
     @Override
     @Transactional
-    public Long createOrderLine(OrderLineDTO dto, Order order) {
-        return 0L;
+    public void createOrderLine(OrderLineDTO dto, Order order) {
+        OrderLine orderLine = orderLineMapper.toOrderLine(dto);
+        orderLine.setOrder(order);
+        order.getOrderLines().add(orderLine);
     }
 
     @Override
     @Transactional
-    public OrderLine updateOrderLine(OrderLineDTO dto, Order order) {
-        return null;
-    }
-
-    @Override
-    @Transactional
-    public void deleteOrderLine(Long id) {
-
+    public void updateOrderLine(OrderLineDTO dto, OrderLine orderLine) {
+        // ONLY THE QUANTITY AND THE PRICE ARE UPDATABLE
+        orderLine.setQuantity(dto.getQuantity());
+        orderLine.setPrice(dto.getPrice());
     }
 
     @Override
     public void deleteOrderLines(List<OrderLine> orderLines) {
-
+        orderLineRepository.deleteAll(orderLines);
     }
 
 }

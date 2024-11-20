@@ -5,7 +5,7 @@ import com.example.orders.enums.OrderStatus;
 import com.example.orders.model.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.time.LocalDate;
 
 @Component
 public class OrderMapper {
@@ -35,10 +35,8 @@ public class OrderMapper {
         order.setId(orderDTO.getId());
         order.setOrderId(orderDTO.getOrderId());
         order.setCustomerName(orderDTO.getCustomerName());
-        Optional.ofNullable(orderDTO.getId()).ifPresentOrElse(
-                id -> order.setOrderStatus(orderDTO.getOrderStatus()),
-                () -> order.setOrderStatus(OrderStatus.UNPROCESSED));
-        order.setOrderDate(orderDTO.getOrderDate());
+        order.setOrderStatus(OrderStatus.UNPROCESSED); // default value for new Orders
+        order.setOrderDate(LocalDate.now()); // default value for new Orders
         return order;
     }
 
