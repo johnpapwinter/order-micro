@@ -1,4 +1,4 @@
-package com.example.orders.service;
+package com.example.orders.unit;
 
 import com.example.orders.dto.OrderDTO;
 import com.example.orders.dto.OrderLineDTO;
@@ -8,6 +8,9 @@ import com.example.orders.exception.EntityNotFoundException;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.service.OrderLineService;
+import com.example.orders.service.OrderService;
+import com.example.orders.service.OrderServiceImpl;
 import com.example.orders.utils.mappers.OrderMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
