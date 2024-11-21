@@ -3,6 +3,8 @@ package com.example.logging.service;
 import com.example.logging.dto.OrderLogDTO;
 import com.example.logging.model.OrderLog;
 import com.example.logging.repository.OrderLogRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,4 +30,19 @@ public class OrderLogServiceImpl implements OrderLogService {
         orderLogRepository.save(orderLog);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderLogDTO> getOrderLogs(Pageable pageable) {
+        return orderLogRepository.findAll(pageable)
+                .map(orderLog -> {
+                    OrderLogDTO dto = new OrderLogDTO();
+                    dto.setId(orderLog.getId());
+                    dto.setTimestamp(orderLog.getTimestamp());
+                    dto.setThread(orderLog.getThread());
+                    dto.setLevel(orderLog.getLevel());
+                    dto.setLogger(orderLog.getLogger());
+                    dto.setMessage(orderLog.getMessage());
+                    return dto;
+                });
+    }
 }

@@ -7,6 +7,7 @@ import java.time.Instant;
 @Data
 public class OrderLogDTO {
 
+    private String id;
     private Instant timestamp;
     private String thread;
     private String level;
