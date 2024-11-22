@@ -197,12 +197,13 @@ public class LoggingAspect {
 
 
     private void sendLog(LogMessageDTO logMessageDTO) {
-        try {
-            loggingFeignClient.storeLog(logMessageDTO);
-        } catch (Exception e) {
-            log.error("Failed to send log to logging service: {}", e.getMessage());
-            log.info("Fallback: {}", logMessageDTO.getMessage());
-        }
+        log.info(logMessageDTO.toString());
+//        try {
+//            loggingFeignClient.storeLog(logMessageDTO);
+//        } catch (Exception e) {
+//            log.error("Failed to send log to logging service: {}", e.getMessage());
+//            log.info("Fallback: {}", logMessageDTO.getMessage());
+//        }
     }
 
 }
