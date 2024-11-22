@@ -11,6 +11,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U public_user -d public_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo:
     image: mongo:latest
@@ -21,6 +26,58 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  logging-service:
+    build:
+      context: ./logging
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: logging
+      SPRING_DATA_MONGODB_HOST: mongo
+      SPRING_DATA_MONGODB_POST: 27017
+      SPRING_DATA_MONGODB_USERNAME: public_user
+      SPRING_DATA_MONGODB_PASSWORD: publicN3xt!
+      SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
+      SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
+
+  order-service:
+    build:
+      context: ./orders
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      logging-service:
+        condition: service_started
+    environment:
+      SPRING_APPLICATION_NAME: orders
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5433/public_db
+      SPRING_DATASOURCE_USERNAME: public_user
+      SPRING_DATASOURCE_PASSWORD: publicN3xt!
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-master.xml
+      APP_JWT_SECRET: super-secret
+      APP_JWT_ISSUER: public
+      APP_JWT_EXPIRATION: 3600000
+      APP_FEIGN_NAMES_LOGGING_SERVICE_NAME: logging
+      APP_FEIGN_NAMES_LOGGING_SERVICE_URL: http://logging-service:8081
+      TASK_SCHEDULE_CRON: "0 */2 * * * *"
 
 volumes:
   postgres_data:
