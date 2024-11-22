@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Document(collation = "order_logs")
+@Document(collection = "order_logs")
 @Getter
 @Setter
 public class OrderLog {

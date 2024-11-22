@@ -3,12 +3,14 @@ package com.example.logging.service;
 import com.example.logging.dto.OrderLogDTO;
 import com.example.logging.model.OrderLog;
 import com.example.logging.repository.OrderLogRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class OrderLogServiceImpl implements OrderLogService {
 
     private final OrderLogRepository orderLogRepository;

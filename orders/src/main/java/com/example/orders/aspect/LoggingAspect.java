@@ -24,17 +24,21 @@ import java.util.List;
 public class LoggingAspect {
 
     private final LoggingFeignClient loggingFeignClient;
+    private final ThreadLocal<Boolean> isLogging = new ThreadLocal<>();
 
     public LoggingAspect(LoggingFeignClient loggingFeignClient) {
         this.loggingFeignClient = loggingFeignClient;
     }
 
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) || " +
-            "@annotation(org.springframework.web.bind.annotation.GetMapping) || " +
-            "@annotation(org.springframework.web.bind.annotation.PostMapping) || " +
-            "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
-            "@annotation(org.springframework.web.bind.annotation.DeleteMapping)")
-    public void restEndpoints() {}
+
+    @Pointcut("within(@org.springframework.cloud.openfeign.FeignClient *)")
+    public void feignClientMethods() {}
+
+    @Pointcut("!feignClientMethods()")
+    public void notFeignClientMethods() {}
+
+    @Pointcut("within(@org.springframework.web.bind.annotation.RestController *) && !feignClientMethods()")
+    public void restControllerMethods() {}
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
     public void databaseOperations() {}
@@ -55,7 +59,6 @@ public class LoggingAspect {
             }
         }
 
-        String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
         String requestPath = "";
@@ -72,7 +75,6 @@ public class LoggingAspect {
                 .append("Exception handled - Type: ").append(exceptionType)
                 .append(", Path: ").append(requestPath);
 
-        // Add validation errors if present
         if (exception instanceof MethodArgumentNotValidException) {
             MethodArgumentNotValidException validationException = (MethodArgumentNotValidException) exception;
             List<String> errors = new ArrayList<>();
@@ -84,7 +86,6 @@ public class LoggingAspect {
             errorMessageBuilder.append(", Message: ").append(exception.getMessage());
         }
 
-        // Log the error
         LogMessageDTO errorLog = LogMessageDTO.builder()
                 .timestamp(Instant.now())
                 .thread(Thread.currentThread().getName())
@@ -95,10 +96,8 @@ public class LoggingAspect {
 
         sendLog(errorLog);
 
-        // Proceed with the exception handler
         Object result = joinPoint.proceed();
 
-        // Log the response
         ResponseEntity<?> responseEntity = (ResponseEntity<?>) result;
         String responseBody = responseEntity.getBody() != null ? responseEntity.getBody().toString() : "null";
 
@@ -117,37 +116,46 @@ public class LoggingAspect {
         return result;
     }
 
-    @Around("restEndpoints()")
+    @Around("restControllerMethods() && !feignClientMethods()")
     public Object logRestCall(ProceedingJoinPoint joinPoint) throws Throwable {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-                .getRequestAttributes())
-                .getRequest();
-
-        String methodName = joinPoint.getSignature().getName();
-        String className = joinPoint.getTarget().getClass().getSimpleName();
-
-        LogMessageDTO logMessageDTO = LogMessageDTO.builder()
-                .timestamp(Instant.now())
-                .thread(Thread.currentThread().getName())
-                .level("INFO")
-                .logger(className)
-                .message(String.format("REST Request - Method: %s, Path: %s", methodName, request.getRequestURI()))
-                .build();
-
-        sendLog(logMessageDTO);
-        try {
+        if (Boolean.TRUE.equals(isLogging.get())) {
             return joinPoint.proceed();
-        } catch (Exception e) {
-            LogMessageDTO errorLog = LogMessageDTO.builder()
+        }
+
+        try {
+            isLogging.set(true);
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
+                    .getRequestAttributes())
+                    .getRequest();
+
+            String methodName = joinPoint.getSignature().getName();
+            String className = joinPoint.getTarget().getClass().getSimpleName();
+
+            LogMessageDTO logMessageDTO = LogMessageDTO.builder()
                     .timestamp(Instant.now())
                     .thread(Thread.currentThread().getName())
-                    .level("ERROR")
+                    .level("INFO")
                     .logger(className)
-                    .message(String.format("REST Request - Method: %s, Path: %s", methodName, request.getRequestURI()))
+                    .message("REST Request - Method: " + methodName + ", Path: " + request.getRequestURI())
                     .build();
 
-            sendLog(errorLog);
-            throw e;
+            sendLog(logMessageDTO);
+            try {
+                return joinPoint.proceed();
+            } catch (Exception e) {
+                LogMessageDTO errorLog = LogMessageDTO.builder()
+                        .timestamp(Instant.now())
+                        .thread(Thread.currentThread().getName())
+                        .level("ERROR")
+                        .logger(className)
+                        .message("REST Request - Method: " + methodName + ", Path: " + request.getRequestURI())
+                        .build();
+
+                sendLog(errorLog);
+                throw e;
+            }
+        } finally {
+            isLogging.remove();
         }
     }
 
@@ -197,13 +205,12 @@ public class LoggingAspect {
 
 
     private void sendLog(LogMessageDTO logMessageDTO) {
-        log.info(logMessageDTO.toString());
-//        try {
-//            loggingFeignClient.storeLog(logMessageDTO);
-//        } catch (Exception e) {
-//            log.error("Failed to send log to logging service: {}", e.getMessage());
-//            log.info("Fallback: {}", logMessageDTO.getMessage());
-//        }
+        try {
+            loggingFeignClient.storeLog(logMessageDTO);
+        } catch (Exception e) {
+            log.error("Failed to send log to logging service: {}", e.getMessage());
+            log.info("Fallback: {}", logMessageDTO.getMessage());
+        }
     }
 
 }
