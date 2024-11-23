@@ -1,0 +1,103 @@
+name: orders-management-system-prod
+
+services:
+  postgres:
+    container_name: oms-postgres-prod
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oms-prod-network
+
+  mongo:
+    container_name: oms-mongodb-prod
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "${MONGO_EXTERNAL_PORT}:${MONGO_PORT}"
+    volumes:
+      - mongo_prod_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oms-prod-network
+
+  logging-service:
+    container_name: oms-logging-service-prod
+    build:
+      context: ./logging
+      dockerfile: Dockerfile
+    ports:
+      - "${LOGGING_SERVICE_PORT}:${LOGGING_SERVICE_PORT}"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: ${LOGGING_APP_NAME}
+      SPRING_DATA_MONGODB_HOST: mongo
+      SPRING_DATA_MONGODB_POST: ${MONGO_PORT}
+      SPRING_DATA_MONGODB_USERNAME: ${MONGO_USERNAME}
+      SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD}
+      SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: ${LOGGING_MONGODB_AUTH_DB}
+      SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
+    networks:
+      - oms-prod-network
+
+  order-service:
+    container_name: oms-order-service-prod
+    build:
+      context: ./orders
+      dockerfile: Dockerfile
+    ports:
+      - "${ORDER_SERVICE_PORT}:${ORDER_SERVICE_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      logging-service:
+        condition: service_started
+    environment:
+      SPRING_APPLICATION_NAME: orders
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-master.xml
+      APP_JWT_SECRET: ${JWT_SECRET}
+      APP_JWT_ISSUER: ${JWT_ISSUER}
+      APP_JWT_EXPIRATION: ${JWT_EXPIRATION}
+      APP_FEIGN_NAMES_LOGGING_SERVICE_NAME: logging
+      APP_FEIGN_NAMES_LOGGING_SERVICE_URL: http://logging-service:${LOGGING_SERVICE_PORT}
+      TASK_SCHEDULE_CRON: ${TASK_SCHEDULE_CRON}
+    networks:
+      - oms-prod-network
+
+volumes:
+  postgres_prod_data:
+    name: oms-postgres-prod-data
+  mongo_prod_data:
+    name: oms-mongodb-prod-data
+
+networks:
+  oms-prod-network:
+    name: oms-prod-network
+    driver: bridge

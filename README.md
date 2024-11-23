@@ -26,6 +26,11 @@ The Order Management Service is a microservices-architecture project to manage o
    ```bash
    docker-compose -f docker-compose.yml up
    ```
+   #### Production Environment
+
+   ```bash
+   docker-compose --env-file .env.prod -f docker-compose.prod.yml up
+   ```
 
 3. **Accessing the API**
 
