@@ -10,10 +10,29 @@ The Order Management Service is a microservices-architecture project to manage o
 - **Processed Orders**: Logging of Processed orders to a dedicated database.
 
 ## Installation Instructions
-- **
-- **
+### Running the Application
+
+1. **Clone the Repository**
+
+   ```bash
+   git clone https://github.com/johnpapwinter/order-micro.git
+   cd order-micro
+   ```
+
+2. **Docker Setup**
+
+   #### Development Environment
+
+   ```bash
+   docker-compose -f docker-compose.yml up
+   ```
+
+3. **Accessing the API**
+
+- **Development**: Access the API directly without authentication.
 
 ## Future Improvements
 1. Addition of a messaging queue (e.g. RabbitMQ) to handle intra-microservices communication
 2. Full registration operations for new users
 3. Appropriate error handling and logging for Logging Service
+4. Production environment
