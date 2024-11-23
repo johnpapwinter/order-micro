@@ -1,6 +1,6 @@
 package com.example.orders.feign;
 
-import com.example.orders.dto.LogMessageDTO;
+import com.example.orders.dto.ProcessedOrderDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface LoggingFeignClient {
 
     @PostMapping
-    void storeLog(LogMessageDTO logMessageDTO);
+    void storeProcessedOrder(ProcessedOrderDTO processedOrderDTO);
 
 }

@@ -2,9 +2,11 @@ package com.example.orders.unit;
 
 import com.example.orders.dto.OrderDTO;
 import com.example.orders.dto.OrderLineDTO;
+import com.example.orders.dto.ProcessedOrderDTO;
 import com.example.orders.enums.OrderStatus;
 import com.example.orders.exception.DataMismatchException;
 import com.example.orders.exception.EntityNotFoundException;
+import com.example.orders.feign.LoggingFeignClient;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
@@ -12,6 +14,7 @@ import com.example.orders.service.OrderLineService;
 import com.example.orders.service.OrderService;
 import com.example.orders.service.OrderServiceImpl;
 import com.example.orders.utils.mappers.OrderMapper;
+import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,9 @@ class OrderServiceImplTest {
     private OrderLineService orderLineService;
 
     @Mock
+    private LoggingFeignClient loggingFeignClient;
+
+    @Mock
     private OrderMapper orderMapper;
 
     private OrderService orderService;
@@ -47,7 +53,7 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderServiceImpl(orderRepository, orderLineService, orderMapper);
+        orderService = new OrderServiceImpl(orderRepository, orderLineService, loggingFeignClient, orderMapper);
     }
 
     @Test
@@ -171,10 +177,13 @@ class OrderServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should update all UNPROCESSED Orders")
-    void processOrders_ShouldUpdateUnprocessedOrders() {
+    @DisplayName("Should process orders successfully")
+    void processOrders_ShouldProcessAllOrdersSuccessfully() {
         // Arrange
-        List<Order> unprocessedOrders = List.of(createSampleOrder());
+        List<Order> unprocessedOrders = List.of(
+                createSampleOrder(),
+                createSampleOrder()
+        );
         when(orderRepository.findAllByOrderStatus(OrderStatus.UNPROCESSED))
                 .thenReturn(unprocessedOrders);
 
@@ -183,8 +192,53 @@ class OrderServiceImplTest {
 
         // Assert
         verify(orderRepository).findAllByOrderStatus(OrderStatus.UNPROCESSED);
+        verify(loggingFeignClient, times(2)).storeProcessedOrder(any(ProcessedOrderDTO.class));
+        verify(orderRepository, times(2)).save(any(Order.class));
         unprocessedOrders.forEach(order ->
                 assertEquals(OrderStatus.PROCESSED, order.getOrderStatus()));
+    }
+
+    @Test
+    @DisplayName("Should handle empty order list")
+    void processOrders_ShouldHandleEmptyList() {
+        // Arrange
+        when(orderRepository.findAllByOrderStatus(OrderStatus.UNPROCESSED))
+                .thenReturn(List.of());
+
+        // Act
+        orderService.processOrders();
+
+        // Assert
+        verify(orderRepository).findAllByOrderStatus(OrderStatus.UNPROCESSED);
+        verify(loggingFeignClient, never()).storeProcessedOrder(any());
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should process some orders successfully while others fail")
+    void processOrders_ShouldHandlePartialSuccess() {
+        // Arrange
+        Order successOrder = createSampleOrder();
+        successOrder.setOrderId("SUCCESS-1");
+        Order failOrder = createSampleOrder();
+        failOrder.setOrderId("FAIL-1");
+
+        when(orderRepository.findAllByOrderStatus(OrderStatus.UNPROCESSED))
+                .thenReturn(List.of(successOrder, failOrder));
+
+        doNothing()
+                .doThrow(FeignException.class)
+                .when(loggingFeignClient)
+                .storeProcessedOrder(any(ProcessedOrderDTO.class));
+
+        // Act
+        orderService.processOrders();
+
+        // Assert
+        verify(orderRepository).findAllByOrderStatus(OrderStatus.UNPROCESSED);
+        verify(orderRepository, times(1)).save(any()); // Only successful order should be saved
+        assertEquals(OrderStatus.PROCESSED, successOrder.getOrderStatus());
+        assertEquals(OrderStatus.UNPROCESSED, failOrder.getOrderStatus());
     }
 
     @Test
@@ -243,6 +297,17 @@ class OrderServiceImplTest {
         order.setOrderDate(LocalDate.now());
         order.setOrderLines(new ArrayList<>());
         return order;
+    }
+
+    private ProcessedOrderDTO createExpectedProcessedOrderDTO(Order order) {
+        return ProcessedOrderDTO.builder()
+                .orderId(order.getOrderId())
+                .amount(order.getOrderLines().stream()
+                        .mapToDouble(OrderLine::getPrice)
+                        .sum())
+                .itemsCount(order.getOrderLines().size())
+                .date(order.getOrderDate())
+                .build();
     }
 
 }

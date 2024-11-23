@@ -5,21 +5,20 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
-@Document(collection = "order_logs")
+@Document(collection = "logged_orders")
 @Getter
 @Setter
-public class OrderLog {
+public class LoggedOrder {
 
     @Id
     private String id;
 
-    private Instant timestamp;
-    private String thread;
-    private String level;
-    private String logger;
-    private String message;
+    private String orderId;
+    private Double amount;
+    private Integer itemsCount;
+    private LocalDate date;
 
 
 }

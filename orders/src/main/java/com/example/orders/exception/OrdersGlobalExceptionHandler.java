@@ -17,7 +17,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessageDTO> handleEntityNotFoundException(EntityNotFoundException e) {
-//        e.printStackTrace();
+        e.printStackTrace();
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
@@ -29,7 +29,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(DataMismatchException.class)
     public ResponseEntity<ErrorMessageDTO> handleDataMismatchException(DataMismatchException e) {
-//        e.printStackTrace();
+        e.printStackTrace();
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(e.getMessage())
@@ -41,7 +41,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorMessageDTO> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-//        e.printStackTrace();
+        e.printStackTrace();
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(ErrorMessages.DATA_CONSTRAINT_VIOLATION)
