@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "3668ad9f-403c-4417-835e-60d1dbfad5aa",
+		"name": "Public",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "21545141"
+	},
+	"item": [
+		{
+			"name": "Create Order",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"orderId\": \"OA23041\",\r\n    \"customerName\": \"Bobby Drake\",\r\n    \"orderLines\": [\r\n        {\r\n            \"productId\": \"O100\",\r\n            \"quantity\": 2,\r\n            \"price\": 10.1\r\n        },\r\n        {\r\n            \"productId\": \"O101\",\r\n            \"quantity\": 2,\r\n            \"price\": 10.1\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/orders"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Order",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 2,\r\n    \"orderId\": \"XK2304\",\r\n    \"customerName\": \"Bobby Drake\",\r\n    \"orderStatus\": \"PROCESSED\",\r\n    \"orderDate\": \"2024-11-20\",\r\n    \"orderLines\": [\r\n        {\r\n            \"id\": 1,\r\n            \"productId\": \"O100\",\r\n            \"quantity\": 20,\r\n            \"price\": 10.1\r\n        },\r\n        {\r\n            \"productId\": \"K100\",\r\n            \"quantity\": 5,\r\n            \"price\": 15.1\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/orders/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch Order",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/orders/3"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Order",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:8080/api/orders/5"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"hank\",\r\n    \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/auth/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch Paginated Logs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8081/api/logs"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Log",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"timestamp\": \"2024-11-22T15:55:33.091053700Z\",\r\n    \"thread\": \"http-nio-8080-exec-1\",\r\n    \"level\": \"INFO\",\r\n    \"logger\": \"AuthController\",\r\n    \"message\": \"REST Request - Method: login, Path: /api/auth/login\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8081/api/logs"
+			},
+			"response": []
+		}
+	]
+}
