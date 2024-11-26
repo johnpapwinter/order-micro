@@ -27,7 +27,7 @@ public class LoggingAspect {
     @Pointcut("!feignClientMethods()")
     public void notFeignClientMethods() {}
 
-    @Pointcut("within(@org.springframework.web.bind.annotation.RestController *) && !feignClientMethods()")
+    @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void restControllerMethods() {}
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
