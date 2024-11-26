@@ -75,7 +75,7 @@ services:
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
       SPRING_LIQUIBASE_ENABLED: "true"
-      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-master.xml
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-dev.xml
       APP_JWT_SECRET: super-secret
       APP_JWT_ISSUER: public
       APP_JWT_EXPIRATION: 3600000
