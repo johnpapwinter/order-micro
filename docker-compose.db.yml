@@ -4,9 +4,9 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: public_user
-      POSTGRES_PASSWORD: publicN3xt!
-      POSTGRES_DB: public_db
+      POSTGRES_USER: order_user
+      POSTGRES_PASSWORD: orderUs3r!
+      POSTGRES_DB: oms_db
     ports:
       - "5433:5432"
     volumes:
@@ -15,8 +15,8 @@ services:
   mongo:
     image: mongo:latest
     environment:
-      MONGO_INITDB_ROOT_USERNAME: public_user
-      MONGO_INITDB_ROOT_PASSWORD: publicN3xt!
+      MONGO_INITDB_ROOT_USERNAME: order_user
+      MONGO_INITDB_ROOT_PASSWORD: orderUs3r!
     ports:
       - "27017:27017"
     volumes:

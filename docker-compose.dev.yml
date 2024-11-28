@@ -5,9 +5,9 @@ services:
     container_name: oms-postgres
     image: postgres:latest
     environment:
-      POSTGRES_USER: public_user
-      POSTGRES_PASSWORD: publicN3xt!
-      POSTGRES_DB: public_db
+      POSTGRES_USER: order_user
+      POSTGRES_PASSWORD: orderUs3r!
+      POSTGRES_DB: oms_db
     ports:
       - "5433:5432"
     volumes:
@@ -22,8 +22,8 @@ services:
     container_name: oms-mongodb
     image: mongo:latest
     environment:
-      MONGO_INITDB_ROOT_USERNAME: public_user
-      MONGO_INITDB_ROOT_PASSWORD: publicN3xt!
+      MONGO_INITDB_ROOT_USERNAME: order_user
+      MONGO_INITDB_ROOT_PASSWORD: orderUs3r!
     ports:
       - "27017:27017"
     volumes:
@@ -48,8 +48,8 @@ services:
       SPRING_APPLICATION_NAME: logging
       SPRING_DATA_MONGODB_HOST: mongo
       SPRING_DATA_MONGODB_POST: 27017
-      SPRING_DATA_MONGODB_USERNAME: public_user
-      SPRING_DATA_MONGODB_PASSWORD: publicN3xt!
+      SPRING_DATA_MONGODB_USERNAME: order_user
+      SPRING_DATA_MONGODB_PASSWORD: orderUs3r!
       SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
 
@@ -70,14 +70,14 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/public_db
-      SPRING_DATASOURCE_USERNAME: public_user
-      SPRING_DATASOURCE_PASSWORD: publicN3xt!
+      SPRING_DATASOURCE_USERNAME: order_user
+      SPRING_DATASOURCE_PASSWORD: orderUs3r!
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
       SPRING_LIQUIBASE_ENABLED: "true"
       SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-master.xml
       APP_JWT_SECRET: super-secret
-      APP_JWT_ISSUER: public
+      APP_JWT_ISSUER: oms
       APP_JWT_EXPIRATION: 3600000
       APP_FEIGN_NAMES_LOGGING_SERVICE_NAME: logging
       APP_FEIGN_NAMES_LOGGING_SERVICE_URL: http://logging-service:8081
