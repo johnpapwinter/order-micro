@@ -1,4 +1,4 @@
-package com.example.orders.aspect;
+package com.example.logging.aspect;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -21,19 +21,13 @@ public class LoggingAspect {
 
 
 
-    @Pointcut("within(@org.springframework.cloud.openfeign.FeignClient *)")
-    public void feignClientMethods() {}
-
-    @Pointcut("!feignClientMethods()")
-    public void notFeignClientMethods() {}
-
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void restControllerMethods() {}
 
-    @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository+.*(..))")
+    @Pointcut("execution(* org.springframework.data.mongodb.repository.MongoRepository+.*(..))")
     public void databaseOperations() {}
 
-    @Around("restControllerMethods() && !feignClientMethods()")
+    @Around("restControllerMethods()")
     public Object logRestCall(ProceedingJoinPoint joinPoint) throws Throwable {
         if (Boolean.TRUE.equals(isLogging.get())) {
             return joinPoint.proceed();

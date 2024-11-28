@@ -17,6 +17,10 @@ public class ErrorMessages {
     public static final String PRICE_CANNOT_BE_NEGATIVE = "PRICE_CANNOT_BE_NEGATIVE";
 
     public static final String APP_USER_NOT_FOUND = "APP_USER_NOT_FOUND";
+    public static final String USERNAME_CANNOT_BE_EMPTY = "USERNAME_CANNOT_BE_EMPTY";
+    public static final String PASSWORD_CANNOT_BE_EMPTY = "PASSWORD_CANNOT_BE_EMPTY";
+    public static final String PASSWORD_CONFIRMATION_CANNOT_BE_EMPTY = "PASSWORD_CONFIRMATION_CANNOT_BE_EMPTY";
+    public static final String PASSWORDS_NOT_MATCH = "PASSWORDS_NOT_MATCH";
 
     public static final String CONTACT_YOUR_ADMINISTRATOR = "CONTACT_YOUR_ADMINISTRATOR";
 

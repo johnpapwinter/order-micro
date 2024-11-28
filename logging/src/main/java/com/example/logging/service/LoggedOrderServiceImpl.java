@@ -3,6 +3,7 @@ package com.example.logging.service;
 import com.example.logging.dto.LoggedOrderDTO;
 import com.example.logging.model.LoggedOrder;
 import com.example.logging.repository.LoggedOrderRepository;
+import com.example.logging.utils.mapper.LoggedOrderMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,19 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoggedOrderServiceImpl implements LoggedOrderService {
 
     private final LoggedOrderRepository loggedOrderRepository;
+    private final LoggedOrderMapper mapper;
 
-    public LoggedOrderServiceImpl(LoggedOrderRepository loggedOrderRepository) {
+    public LoggedOrderServiceImpl(LoggedOrderRepository loggedOrderRepository,
+                                  LoggedOrderMapper mapper) {
         this.loggedOrderRepository = loggedOrderRepository;
+        this.mapper = mapper;
     }
 
     @Override
     @Transactional
     public void createLoggedOrder(LoggedOrderDTO dto) {
-        LoggedOrder loggedOrder = new LoggedOrder();
-        loggedOrder.setOrderId(dto.getOrderId());
-        loggedOrder.setAmount(dto.getAmount());
-        loggedOrder.setItemsCount(dto.getItemsCount());
-        loggedOrder.setDate(dto.getDate());
+        LoggedOrder loggedOrder = mapper.toLoggedOrder(dto);
 
         loggedOrderRepository.save(loggedOrder);
     }
@@ -33,14 +33,7 @@ public class LoggedOrderServiceImpl implements LoggedOrderService {
     @Transactional(readOnly = true)
     public Page<LoggedOrderDTO> getAllLoggedOrders(Pageable pageable) {
         return loggedOrderRepository.findAll(pageable)
-                .map(loggedOrder ->
-                    LoggedOrderDTO.builder()
-                            .id(loggedOrder.getId())
-                            .orderId(loggedOrder.getOrderId())
-                            .amount(loggedOrder.getAmount())
-                            .itemsCount(loggedOrder.getItemsCount())
-                            .date(loggedOrder.getDate())
-                            .build()
-                );
+                .map(mapper::toLoggedOrderDTO);
     }
+
 }

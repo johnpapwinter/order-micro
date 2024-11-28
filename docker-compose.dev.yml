@@ -46,12 +46,16 @@ services:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: logging
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATA_MONGODB_HOST: mongo
       SPRING_DATA_MONGODB_POST: 27017
       SPRING_DATA_MONGODB_USERNAME: order_user
       SPRING_DATA_MONGODB_PASSWORD: orderUs3r!
       SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
       SPRING_DATA_MONGODB_AUTO_INDEX_CREATION: "true"
+      MONGOCK_MIGRATION_SCAN_PACKAGE: com.example.logging.migrations
+      MONGOCK_ENABLED: "true"
+      MONGOCK_RUNNER_TYPE: initializingbean
 
   order-service:
     container_name: oms-order-service
@@ -75,7 +79,7 @@ services:
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
       SPRING_LIQUIBASE_ENABLED: "true"
-      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-master.xml
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:/db.changelog/db.changelog-dev.xml
       APP_JWT_SECRET: super-secret
       APP_JWT_ISSUER: oms
       APP_JWT_EXPIRATION: 3600000
