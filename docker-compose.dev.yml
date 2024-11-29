@@ -17,6 +17,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - oms-dev-network
+
 
   mongo:
     container_name: oms-mongodb
@@ -33,6 +36,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - oms-dev-network
+
 
   rabbitmq:
     container_name: oms-rabbitmq
@@ -48,6 +54,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - oms-dev-network
+
 
   logging-service:
     container_name: oms-logging-service
@@ -78,6 +87,9 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: order_user
       SPRING_RABBITMQ_PASSWORD: orderUs3r!
+    networks:
+      - oms-dev-network
+
 
   order-service:
     container_name: oms-order-service
@@ -115,7 +127,13 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: order_user
       SPRING_RABBITMQ_PASSWORD: orderUs3r!
+    networks:
+      - oms-dev-network
+
 
 volumes:
   postgres_data:
   mongo_data:
+
+networks:
+  oms-dev-network:
