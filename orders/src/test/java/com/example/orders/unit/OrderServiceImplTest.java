@@ -10,6 +10,7 @@ import com.example.orders.feign.LoggingFeignClient;
 import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.service.LoggingMessageService;
 import com.example.orders.service.OrderLineService;
 import com.example.orders.service.OrderService;
 import com.example.orders.service.OrderServiceImpl;
@@ -46,6 +47,9 @@ class OrderServiceImplTest {
     private LoggingFeignClient loggingFeignClient;
 
     @Mock
+    private LoggingMessageService loggingMessageService;
+
+    @Mock
     private OrderMapper orderMapper;
 
     private OrderService orderService;
@@ -53,7 +57,7 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderServiceImpl(orderRepository, orderLineService, loggingFeignClient, orderMapper);
+        orderService = new OrderServiceImpl(orderRepository, orderLineService, loggingFeignClient, orderMapper, loggingMessageService);
     }
 
     @Test

@@ -51,6 +51,19 @@ public class OrdersGlobalExceptionHandler {
         return new ResponseEntity<>(messageDTO, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(LoggingServiceException.class)
+    public ResponseEntity<ErrorMessageDTO> handleLoggingServiceException(LoggingServiceException e) {
+        e.printStackTrace();
+        ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
+                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(messageDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
         List<String> errors = new ArrayList<>();

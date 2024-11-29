@@ -35,14 +35,18 @@ public class OrderServiceImpl implements OrderService {
     private final LoggingFeignClient loggingFeignClient;
     private final OrderMapper orderMapper;
 
+    private final LoggingMessageService loggingMessageService;
+
     public OrderServiceImpl(OrderRepository orderRepository,
                             OrderLineService orderLineService,
                             LoggingFeignClient loggingFeignClient,
-                            OrderMapper orderMapper) {
+                            OrderMapper orderMapper,
+                            LoggingMessageService loggingMessageService) {
         this.orderRepository = orderRepository;
         this.orderLineService = orderLineService;
         this.loggingFeignClient = loggingFeignClient;
         this.orderMapper = orderMapper;
+        this.loggingMessageService = loggingMessageService;
     }
 
     /**
@@ -158,6 +162,7 @@ public class OrderServiceImpl implements OrderService {
                         LOGGER.info("Successfully processed order: {}", order.getOrderId());
                         return true;
                     } catch (Exception e) {
+                        e.printStackTrace();
                         LOGGER.error("Failed to process order: {}: {}", order.getOrderId(), e.getMessage());
                         return false;
                     }
@@ -190,7 +195,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     protected void storeProcessedOrder(ProcessedOrderDTO processedOrderDTO) {
-        loggingFeignClient.storeProcessedOrder(processedOrderDTO);
+        loggingMessageService.storeProcessedOrder(processedOrderDTO);
+//        loggingFeignClient.storeProcessedOrder(processedOrderDTO);
     }
 
 
