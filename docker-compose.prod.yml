@@ -38,6 +38,23 @@ services:
     networks:
       - oms-prod-network
 
+  rabbitmq:
+    container_name: oms-rabbitmq-prod
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oms-prod-network
+
   logging-service:
     container_name: oms-logging-service-prod
     build:
@@ -47,6 +64,8 @@ services:
       - "8081:8081"
     depends_on:
       mongo:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: ${LOGGING_APP_NAME}
@@ -60,6 +79,11 @@ services:
       MONGOCK_MIGRATION_SCAN_PACKAGE: ${MONGOCK_MIGRATION_SCAN_PACKAGE}
       MONGOCK_ENABLED: ${MONGOCK_ENABLED}
       MONGOCK_RUNNER_TYPE: ${MONGOCK_RUNNER_TYPE}
+      RABBITMQ_QUEUE_LOGGING_REQUEST: ${RABBITMQ_QUEUE_LOGGING_REQUEST}
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     networks:
       - oms-prod-network
 
@@ -72,6 +96,8 @@ services:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       logging-service:
         condition: service_started
@@ -92,6 +118,11 @@ services:
       APP_FEIGN_NAMES_LOGGING_SERVICE_NAME: ${APP_FEIGN_NAMES_LOGGING_SERVICE_NAME}
       APP_FEIGN_NAMES_LOGGING_SERVICE_URL: ${APP_FEIGN_NAMES_LOGGING_SERVICE_URL}
       TASK_SCHEDULE_CRON: ${TASK_SCHEDULE_CRON}
+      RABBITMQ_QUEUE_LOGGING_REQUEST: ${RABBITMQ_QUEUE_LOGGING_REQUEST}
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     networks:
       - oms-prod-network
 

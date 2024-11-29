@@ -34,6 +34,21 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    container_name: oms-rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: order_user
+      RABBITMQ_DEFAULT_PASS: orderUs3r!
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   logging-service:
     container_name: oms-logging-service
     build:
@@ -43,6 +58,8 @@ services:
       - "8081:8081"
     depends_on:
       mongo:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: logging
@@ -56,6 +73,11 @@ services:
       MONGOCK_MIGRATION_SCAN_PACKAGE: com.example.logging.migrations
       MONGOCK_ENABLED: "true"
       MONGOCK_RUNNER_TYPE: initializingbean
+      RABBITMQ_QUEUE_LOGGING_REQUEST: logging.request
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: order_user
+      SPRING_RABBITMQ_PASSWORD: orderUs3r!
 
   order-service:
     container_name: oms-order-service
@@ -66,6 +88,8 @@ services:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       logging-service:
         condition: service_started
@@ -86,6 +110,11 @@ services:
       APP_FEIGN_NAMES_LOGGING_SERVICE_NAME: logging
       APP_FEIGN_NAMES_LOGGING_SERVICE_URL: http://logging-service:8081
       TASK_SCHEDULE_CRON: "0 */2 * * * *"
+      RABBITMQ_QUEUE_LOGGING_REQUEST: logging.request
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: order_user
+      SPRING_RABBITMQ_PASSWORD: orderUs3r!
 
 volumes:
   postgres_data:
