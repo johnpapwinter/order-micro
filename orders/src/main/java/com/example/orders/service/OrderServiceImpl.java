@@ -162,7 +162,6 @@ public class OrderServiceImpl implements OrderService {
                         LOGGER.info("Successfully processed order: {}", order.getOrderId());
                         return true;
                     } catch (Exception e) {
-                        e.printStackTrace();
                         LOGGER.error("Failed to process order: {}: {}", order.getOrderId(), e.getMessage());
                         return false;
                     }

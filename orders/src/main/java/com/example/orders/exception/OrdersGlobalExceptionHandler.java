@@ -1,5 +1,7 @@
 package com.example.orders.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +16,11 @@ import java.util.List;
 @ControllerAdvice
 public class OrdersGlobalExceptionHandler {
 
+    Logger LOGGER = LoggerFactory.getLogger(OrdersGlobalExceptionHandler.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessageDTO> handleEntityNotFoundException(EntityNotFoundException e) {
-        e.printStackTrace();
+        LOGGER.error("Entity already exists: {}", e.getMessage());
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.NOT_FOUND)
                 .message(e.getMessage())
@@ -29,7 +32,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(DataMismatchException.class)
     public ResponseEntity<ErrorMessageDTO> handleDataMismatchException(DataMismatchException e) {
-        e.printStackTrace();
+        LOGGER.error("Data mismatch: {}", e.getMessage());
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(e.getMessage())
@@ -41,7 +44,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorMessageDTO> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-        e.printStackTrace();
+        LOGGER.error("Data Integrity: {}", e.getMessage());
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .message(ErrorMessages.DATA_CONSTRAINT_VIOLATION)
@@ -53,7 +56,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(LoggingServiceException.class)
     public ResponseEntity<ErrorMessageDTO> handleLoggingServiceException(LoggingServiceException e) {
-        e.printStackTrace();
+        LOGGER.error("Logging service error: {}", e.getMessage());
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                 .message(e.getMessage())
@@ -65,9 +68,10 @@ public class OrdersGlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
+    public ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException e) {
+        LOGGER.error("Invalid arguments: {}", e.getMessage());
         List<String> errors = new ArrayList<>();
-        exception.getBindingResult().getAllErrors().forEach((error) -> {
+        e.getBindingResult().getAllErrors().forEach((error) -> {
             String errorMessage = error.getDefaultMessage();
             errors.add(errorMessage);
         });
@@ -78,7 +82,7 @@ public class OrdersGlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageDTO> handleException(Exception e) {
-        e.printStackTrace();
+        LOGGER.error("Generic error: {}", e.getMessage());
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                 .message(ErrorMessages.CONTACT_YOUR_ADMINISTRATOR)

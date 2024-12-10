@@ -41,7 +41,7 @@ public class LoggingMessageService {
 
             log.info("Successfully processed order {}", dto.getOrderId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to process order {}", e.getMessage());
             throw new LoggingServiceException(ErrorMessages.FAILED_TO_PROCESS_ORDER);
         }
     }
