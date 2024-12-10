@@ -46,7 +46,7 @@ public interface OrderApi {
             @ApiResponse(responseCode = "400", description = "invalid input"),
             @ApiResponse(responseCode = "404", description = "not found")
     })
-    ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO dto);
+    ResponseEntity<OrderDTO> updateOrder(@RequestBody @Valid OrderDTO dto);
 
 
     @Operation(
