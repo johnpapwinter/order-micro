@@ -10,7 +10,7 @@ public interface OrderService {
 
     OrderDTO getOrder(Long id);
 
-    OrderDTO updateOrder(Long id, OrderDTO dto);
+    OrderDTO updateOrder(OrderDTO dto);
 
     void deleteOrder(Long id);
 

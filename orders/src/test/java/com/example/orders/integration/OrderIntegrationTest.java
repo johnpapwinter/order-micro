@@ -152,7 +152,7 @@ public class OrderIntegrationTest {
         String content = objectMapper.writeValueAsString(existingOrder);
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/api/orders/" + orderId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/api/orders")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
@@ -161,22 +161,6 @@ public class OrderIntegrationTest {
 
         OrderDTO updatedOrder = objectMapper.readValue(result.getResponse().getContentAsString(), OrderDTO.class);
         assertEquals(OrderStatus.PROCESSED, updatedOrder.getOrderStatus());
-    }
-
-    @Test
-    @DisplayName("Should fail to update when IDs don't match")
-    void updateOrder_ShouldFailWithMismatchedIds() throws Exception {
-        // Arrange
-        OrderDTO orderDTO = createSampleOrderDTO();
-        orderDTO.setId(2L);  // Mismatched ID
-        String content = objectMapper.writeValueAsString(orderDTO);
-
-        // Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/orders/1")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test

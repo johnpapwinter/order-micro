@@ -30,9 +30,9 @@ public class OrderController implements OrderApi {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO dto) {
-        OrderDTO updatedDto = orderService.updateOrder(id, dto);
+    @PutMapping
+    public ResponseEntity<OrderDTO> updateOrder(@RequestBody @Valid OrderDTO dto) {
+        OrderDTO updatedDto = orderService.updateOrder(dto);
 
         return ResponseEntity.ok(updatedDto);
     }

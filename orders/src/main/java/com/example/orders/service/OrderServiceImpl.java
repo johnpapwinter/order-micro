@@ -81,14 +81,12 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Takes an id and a DTO object and updates an Order entity and its associated OrderLines
-     * @param id The ID of the Order to be updated
      * @param dto The OrderDTO object containing the updated values and the associated OrderLineDTOs
      * @return An OrderDTO with the updated Order
      */
     @Override
     @Transactional
-    public OrderDTO updateOrder(Long id, OrderDTO dto) {
-        doIdsMatch(id, dto.getId());
+    public OrderDTO updateOrder(OrderDTO dto) {
 
         // I CONSIDER THAT ONLY THE STATUS AND THE ITEMS ARE UPDATABLE IN THE ORDER
         Order order = orderRepository.findById(dto.getId()).orElseThrow(

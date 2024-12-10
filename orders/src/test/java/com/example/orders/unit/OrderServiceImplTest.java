@@ -126,25 +126,12 @@ class OrderServiceImplTest {
         when(orderMapper.toOrderDTO(existingOrder)).thenReturn(orderDTO);
 
         // Act
-        OrderDTO result = orderService.updateOrder(orderId, orderDTO);
+        OrderDTO result = orderService.updateOrder(orderDTO);
 
         // Assert
         verify(orderRepository).findById(orderId);
         assertEquals(orderDTO.getOrderStatus(), existingOrder.getOrderStatus());
         verify(orderMapper).toOrderDTO(existingOrder);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when there is an ID mismatch")
-    void updateOrder_ShouldThrowException_WhenIdsMismatch() {
-        // Arrange
-        Long pathId = 1L;
-        OrderDTO orderDTO = createSampleOrderDTO();
-        orderDTO.setId(2L);
-
-        // Act & Assert
-        assertThrows(DataMismatchException.class,
-                () -> orderService.updateOrder(pathId, orderDTO));
     }
 
     @Test
@@ -269,7 +256,7 @@ class OrderServiceImplTest {
         orderDTO.setOrderLines(List.of(newLineDTO, existingLineDTO));
 
         // Act
-        OrderDTO result = orderService.updateOrder(orderId, orderDTO);
+        OrderDTO result = orderService.updateOrder(orderDTO);
 
         // Assert
         verify(orderLineService).createOrderLine(newLineDTO, existingOrder);
