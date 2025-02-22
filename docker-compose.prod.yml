@@ -3,7 +3,7 @@ name: orders-management-system-prod
 services:
   postgres:
     container_name: oms-postgres-prod
-    image: postgres:latest
+    image: postgres:17
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -52,6 +52,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - oms-prod-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_prod_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - oms-prod-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - oms-prod-network
 
@@ -123,6 +144,11 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE}
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS}
+      MANAGEMENT_ENDPOINT_METRICS_ENABLED: ${MANAGEMENT_ENDPOINT_METRICS_ENABLED}
+      MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: ${MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED}
+      MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: ${MANAGEMENT_ENDPOINTS_WEB_BASE_PATH}
     networks:
       - oms-prod-network
 
@@ -131,6 +157,8 @@ volumes:
     name: oms-postgres-prod-data
   mongo_prod_data:
     name: oms-mongodb-prod-data
+  grafana_data:
+    name: oms-grafana-prod-data
 
 networks:
   oms-prod-network:
