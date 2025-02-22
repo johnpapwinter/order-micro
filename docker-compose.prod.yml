@@ -56,8 +56,8 @@ services:
       - oms-prod-network
 
   grafana:
+    container_name: oms-grafana
     image: grafana/grafana:latest
-    container_name: grafana
     ports:
       - "3000:3000"
     volumes:
@@ -67,8 +67,8 @@ services:
       - oms-prod-network
 
   prometheus:
+    container_name: oms-prometheus
     image: prom/prometheus:latest
-    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
