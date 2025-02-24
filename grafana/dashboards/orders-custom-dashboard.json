@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
   "links": [],
   "panels": [
     {
@@ -344,8 +343,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Custom Metrics",
-  "uid": "fee1aat4wq5tsd",
+  "title": "Orders Microservice Custom Metrics Dashboard",
+  "uid": "custom-metrics-orders-microservice",
   "version": 6,
   "weekStart": ""
 }

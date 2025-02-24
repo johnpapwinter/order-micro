@@ -66,6 +66,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
     networks:
       - oms-dev-network
 
@@ -79,6 +80,24 @@ services:
     networks:
       - oms-dev-network
 
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - oms-dev-network
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:latest
+    volumes:
+      - ./logs:/var/log
+      - ./promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - oms-dev-network
 
   logging-service:
     container_name: oms-logging-service
@@ -154,6 +173,9 @@ services:
       MANAGEMENT_ENDPOINT_METRICS_ENABLED: true
       MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: true
       MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: /actuator
+      LOGGING_FILE_PATH: ./logs
+      LOGGING_FILE_NAME: ./logs/spring-boot.log
+      LOGGING_PATTERN_FILE: %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
     networks:
       - oms-dev-network
 

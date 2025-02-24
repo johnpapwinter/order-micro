@@ -63,6 +63,7 @@ services:
     volumes:
       - grafana_prod_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
     networks:
       - oms-prod-network
 
@@ -75,6 +76,25 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - oms-prod-network
+
+  loki:
+    container_name: loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - oms-dev-network
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:latest
+    volumes:
+      - ./logs:/var/log
+      - ./promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - oms-dev-network
 
   logging-service:
     container_name: oms-logging-service-prod
@@ -149,6 +169,9 @@ services:
       MANAGEMENT_ENDPOINT_METRICS_ENABLED: ${MANAGEMENT_ENDPOINT_METRICS_ENABLED}
       MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: ${MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED}
       MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: ${MANAGEMENT_ENDPOINTS_WEB_BASE_PATH}
+      LOGGING_FILE_PATH: ${LOGGING_FILE_PATH}
+      LOGGING_FILE_NAME: ${LOGGING_FILE_NAME}
+      LOGGING_PATTERN_FILE: ${LOGGING_PATTERN_FILE}
     networks:
       - oms-prod-network
 
