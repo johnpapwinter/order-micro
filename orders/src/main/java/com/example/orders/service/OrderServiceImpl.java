@@ -11,6 +11,9 @@ import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
 import com.example.orders.utils.mappers.OrderMapper;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Timer;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
@@ -37,17 +41,10 @@ public class OrderServiceImpl implements OrderService {
 
     private final LoggingMessageService loggingMessageService;
 
-    public OrderServiceImpl(OrderRepository orderRepository,
-                            OrderLineService orderLineService,
-                            LoggingFeignClient loggingFeignClient,
-                            OrderMapper orderMapper,
-                            LoggingMessageService loggingMessageService) {
-        this.orderRepository = orderRepository;
-        this.orderLineService = orderLineService;
-        this.loggingFeignClient = loggingFeignClient;
-        this.orderMapper = orderMapper;
-        this.loggingMessageService = loggingMessageService;
-    }
+    private final Timer orderProcessingTimer;
+    private final DistributionSummary orderValueSummary;
+
+
 
     /**
      * Adds a new Order and its associated OrderLines based on the provided OrderDTO
@@ -61,6 +58,11 @@ public class OrderServiceImpl implements OrderService {
         dto.getOrderLines().forEach(orderLineDto -> {
             orderLineService.createOrderLine(orderLineDto, order);
         });
+
+        double orderValue = dto.getOrderLines().stream()
+                .mapToDouble(line -> line.getPrice() * line.getQuantity())
+                .sum();
+        orderValueSummary.record(orderValue);
 
         orderRepository.save(order);
         return order.getId();
@@ -174,6 +176,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void processIndividualOrder(Order order) {
+        Timer.Sample sample = Timer.start();
+
         ProcessedOrderDTO processedOrderDTO = ProcessedOrderDTO.builder()
                 .orderId(order.getOrderId())
                 .amount(order.getOrderLines().stream()
@@ -188,6 +192,8 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.PROCESSED);
 
         orderRepository.save(order);
+
+        sample.stop(orderProcessingTimer);
     }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))

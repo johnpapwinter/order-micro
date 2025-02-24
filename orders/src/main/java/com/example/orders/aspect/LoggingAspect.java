@@ -65,6 +65,10 @@ public class LoggingAspect {
 
     @Around("databaseOperations()")
     public Object logDatabaseOperation(ProceedingJoinPoint joinPoint) throws Throwable {
+        if (isMetricsScrapeRequest()) {
+            return joinPoint.proceed();
+        }
+
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
@@ -84,5 +88,24 @@ public class LoggingAspect {
         }
     }
 
+    private boolean isMetricsScrapeRequest() {
+        try {
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
+            // If there's no current request context, it's not a metrics scrape
+            if (attributes == null) {
+                return false;
+            }
+
+            HttpServletRequest request = attributes.getRequest();
+            String path = request.getRequestURI();
+
+            // Check if this is a request to the metrics endpoint
+            return path != null && path.contains("/actuator/prometheus");
+        } catch (Exception e) {
+            // If we can't determine, assume it's not a metrics request
+            return false;
+        }
+    }
 }
