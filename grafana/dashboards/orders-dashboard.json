@@ -106,9 +106,16 @@
         {
           "editorMode": "code",
           "expr": "system_cpu_usage{application=\"Orders-Microservice\"}",
-          "legendFormat": "__auto",
+          "legendFormat": "Orders Service",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "system_cpu_usage{application=\"Logging-Microservice\"}",
+          "legendFormat": "Logging Service",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "System CPU Usage",
@@ -203,6 +210,13 @@
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "sum by (status) (rate(http_server_requests_seconds_count{application=\"Logging-Microservice\"}[5m]))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "HTTP Response",
@@ -297,6 +311,13 @@
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "rate(http_server_requests_seconds_count{application=\"Logging-Microservice\"}[30s])",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "HTTP Requests",
@@ -396,7 +417,20 @@
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "JVM Memory Usage"
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(jvm_memory_used_bytes{application=\"Logging-Microservice\"}) by (area)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "JVM Memory Usage",
