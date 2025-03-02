@@ -1,0 +1,36 @@
+{
+  "name": "Service Down Alert",
+  "uid": "service-down-alert",
+  "folder": "Microservices",
+  "ruleGroup": "Availability Alerts",
+  "interval": "30s",
+  "rules": [
+    {
+      "uid": "service-down",
+      "title": "Service Down",
+      "condition": "A",
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "PBFA97CFB590B2093",
+          "queryType": "range",
+          "model": {
+            "expr": "up{job=~\"Orders-Microservice|Logging-Microservice\"} == 0",
+            "range": true,
+            "instant": false
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "1m",
+      "annotations": {
+        "summary": "Service Down",
+        "description": "The {{ $labels.job }} service is down"
+      },
+      "labels": {
+        "severity": "critical"
+      }
+    }
+  ]
+}

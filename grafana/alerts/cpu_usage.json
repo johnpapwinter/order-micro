@@ -1,0 +1,55 @@
+{
+  "name": "High CPU Usage Alert",
+  "uid": "cpu-usage-alert",
+  "folder": "Microservices",
+  "ruleGroup": "CPU Alerts",
+  "interval": "1m",
+  "rules": [
+    {
+      "uid": "high-cpu-alert",
+      "title": "High CPU Usage",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "PBFA97CFB590B2093",
+          "queryType": "range",
+          "model": {
+            "expr": "system_cpu_usage{application=~\"Orders-Microservice|Logging-Microservice\"} * 100",
+            "range": true,
+            "instant": false
+          }
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "PBFA97CFB590B2093",
+          "queryType": "range",
+          "model": {
+            "expr": "80",
+            "range": true,
+            "instant": false
+          }
+        },
+        {
+          "refId": "C",
+          "datasourceUid": "__expr__",
+          "queryType": "",
+          "model": {
+            "type": "math",
+            "expression": "$A > $B"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "annotations": {
+        "summary": "High CPU usage detected",
+        "description": "CPU usage is above 80% for {{ $labels.application }}"
+      },
+      "labels": {
+        "severity": "critical"
+      }
+    }
+  ]
+}

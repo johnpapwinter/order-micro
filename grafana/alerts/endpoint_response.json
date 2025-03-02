@@ -1,0 +1,55 @@
+{
+  "name": "Endpoint Response Alert",
+  "uid": "endpoint-response-alert",
+  "folder": "Microservices",
+  "ruleGroup": "API Alerts",
+  "interval": "1m",
+  "rules": [
+    {
+      "uid": "high-error-rate",
+      "title": "High Error Rate",
+      "condition": "C",
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "PBFA97CFB590B2093",
+          "queryType": "range",
+          "model": {
+            "expr": "sum(rate(http_server_requests_seconds_count{application=~\"Orders-Microservice|Logging-Microservice\", status!=\"200\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=~\"Orders-Microservice|Logging-Microservice\"}[5m]))",
+            "range": true,
+            "instant": false
+          }
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "PBFA97CFB590B2093",
+          "queryType": "range",
+          "model": {
+            "expr": "0.1",
+            "range": true,
+            "instant": false
+          }
+        },
+        {
+          "refId": "C",
+          "datasourceUid": "__expr__",
+          "queryType": "",
+          "model": {
+            "type": "math",
+            "expression": "$A > $B"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "3m",
+      "annotations": {
+        "summary": "High Error Rate",
+        "description": "More than 10% of requests are failing"
+      },
+      "labels": {
+        "severity": "warning"
+      }
+    }
+  ]
+}
