@@ -57,6 +57,15 @@ services:
     networks:
       - oms-dev-network
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - oms-dev-network
 
   grafana:
     container_name: oms-grafana
@@ -144,6 +153,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_started
       logging-service:
         condition: service_started
     environment:
@@ -176,6 +187,9 @@ services:
       LOGGING_FILE_PATH: ./logs
       LOGGING_FILE_NAME: ./logs/spring-boot.log
       LOGGING_PATTERN_FILE: %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_CACHE_TYPE: redis
     networks:
       - oms-dev-network
 
@@ -184,6 +198,7 @@ volumes:
   postgres_data:
   mongo_data:
   grafana_data:
+  redis_data:
 
 networks:
   oms-dev-network:

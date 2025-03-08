@@ -55,6 +55,17 @@ services:
     networks:
       - oms-prod-network
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - oms-prod-network
+
+
   grafana:
     container_name: oms-grafana
     image: grafana/grafana:latest
@@ -140,6 +151,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_started
       logging-service:
         condition: service_started
     environment:
@@ -172,6 +185,9 @@ services:
       LOGGING_FILE_PATH: ${LOGGING_FILE_PATH}
       LOGGING_FILE_NAME: ${LOGGING_FILE_NAME}
       LOGGING_PATTERN_FILE: ${LOGGING_PATTERN_FILE}
+      SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
+      SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
+      SPRING_CACHE_TYPE: ${SPRING_CACHE_TYPE}
     networks:
       - oms-prod-network
 
@@ -182,6 +198,8 @@ volumes:
     name: oms-mongodb-prod-data
   grafana_data:
     name: oms-grafana-prod-data
+  redis_data:
+    name: oms-redis-prod-data
 
 networks:
   oms-prod-network:
