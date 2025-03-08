@@ -56,6 +56,7 @@ public class RedisConfig {
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
                 .withInitialCacheConfigurations(cacheConfigurations)
+                .enableStatistics()
                 .build();
     }
 

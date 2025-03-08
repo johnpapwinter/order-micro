@@ -1,5 +1,6 @@
 package com.example.orders.config;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -23,5 +24,23 @@ public class MetricsConfig {
                 .baseUnit("EUR")
                 .register(registry);
     }
+
+
+    @Bean
+    public Counter orderDetailsCacheHits(MeterRegistry registry) {
+        return Counter.builder("orders.cache.hits")
+                .description("Number of cache hits when retrieving order details")
+                .tag("operation", "getOrderDetails")
+                .register(registry);
+    }
+
+    @Bean
+    public Counter orderDetailsCacheMisses(MeterRegistry registry) {
+        return Counter.builder("orders.cache.misses")
+                .description("Number of cache misses when retrieving order details")
+                .tag("operation", "getOrderDetails")
+                .register(registry);
+    }
+
 
 }
