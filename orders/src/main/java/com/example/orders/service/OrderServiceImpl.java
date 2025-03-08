@@ -11,13 +11,11 @@ import com.example.orders.model.Order;
 import com.example.orders.model.OrderLine;
 import com.example.orders.repository.OrderRepository;
 import com.example.orders.utils.mappers.OrderMapper;
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -50,8 +48,6 @@ public class OrderServiceImpl implements OrderService {
 
     private final Timer orderProcessingTimer;
     private final DistributionSummary orderValueSummary;
-    private final Counter orderDetailsCacheHits;
-    private final Counter orderDetailsCacheMisses;
 
 
 
@@ -86,18 +82,6 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Cacheable(value = "orders", key = "#id")
     public OrderDTO getOrder(Long id) {
-        String cacheKey = "orders:" + id;
-
-        Cache cache = cacheManager.getCache("orders");
-        OrderDTO cached = cache != null ? cache.get(cacheKey, OrderDTO.class) : null;
-
-        if (cached != null) {
-            orderDetailsCacheHits.increment();
-            return cached;
-        }
-
-        orderDetailsCacheMisses.increment();
-
         return orderRepository.findById(id).map(orderMapper::toOrderDTO).orElseThrow(
                 () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
         );
