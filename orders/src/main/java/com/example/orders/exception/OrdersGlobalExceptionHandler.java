@@ -83,6 +83,7 @@ public class OrdersGlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageDTO> handleException(Exception e) {
         LOGGER.error("Generic error: {}", e.getMessage());
+        e.printStackTrace();
         ErrorMessageDTO messageDTO = ErrorMessageDTO.builder()
                 .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                 .message(ErrorMessages.CONTACT_YOUR_ADMINISTRATOR)

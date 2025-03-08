@@ -16,6 +16,9 @@ import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
@@ -75,6 +78,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "orders", key = "#id")
     public OrderDTO getOrder(Long id) {
         return orderRepository.findById(id).map(orderMapper::toOrderDTO).orElseThrow(
                 () -> new EntityNotFoundException(ErrorMessages.ORDER_NOT_FOUND)
@@ -88,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
+    @CachePut(value = "orders", key = "#dto.id")
     public OrderDTO updateOrder(OrderDTO dto) {
 
         // I CONSIDER THAT ONLY THE STATUS AND THE ITEMS ARE UPDATABLE IN THE ORDER
@@ -127,6 +132,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "orders", key = "#id")
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
     }
@@ -138,6 +144,9 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(
+            value = "ordersPage",
+            key = "T(org.springframework.data.domain.PageRequest).of(#pageable.pageNumber, #pageable.pageSize).toString() + (#pageable.sort == null ? '' : #pageable.sort.toString())")
     public Page<OrderDTO> getOrders(Pageable pageable) {
         return orderRepository.findAll(pageable)
                 .map(orderMapper::toOrderDTO);

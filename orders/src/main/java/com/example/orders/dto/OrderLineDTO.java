@@ -7,10 +7,12 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Schema(description = "Order Line Data Transfer Object")
 @Data
 @Builder
-public class OrderLineDTO {
+public class OrderLineDTO implements Serializable {
 
     @Schema(description = "Unique Identifier", example = "1")
     private Long id;

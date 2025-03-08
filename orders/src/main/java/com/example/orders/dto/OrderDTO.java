@@ -9,13 +9,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
 @Schema(description = "Order Data Transfer Object")
 @Data
 @Builder
-public class OrderDTO {
+public class OrderDTO implements Serializable {
 
     @Schema(description = "Unique Identifier", example = "1")
     private Long id;
